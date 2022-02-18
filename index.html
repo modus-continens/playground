@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modus Playground</title>
+  <style>
+    body {
+      background-color: #222;
+      color: white;
+      margin: 10px auto;
+      max-width: 1000px;
+      line-height: 2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .modusfile-input, .modus-query {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      font-family: monospace;
+      background-color: #333;
+      outline-color: white;
+      border: none;
+      color: white;
+    }
+
+    .modusfile-input {
+      resize: vertical;
+      min-height: 500px;
+    }
+
+    .result {
+      font-family: monospace;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body>
+  <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
+  Query:
+  <input class="modus-query" type="text" value="alpine_with(&quot;python&quot;)">
+  <pre class="result"></pre>
+  <script type="module">
+    import init, * as modus from './pkg/modus_playground.js';
+    init().then(() => {
+      window.modus = modus;
+
+      let { get_proof_tree } = modus;
+      let input = document.querySelector('.modusfile-input');
+      let query = document.querySelector('.modus-query');
+      let res = document.querySelector('.result');
+
+      function update() {
+        let proof_tree = get_proof_tree(input.value, query.value);
+        let res_text = [];
+        let errors = proof_tree.get_errors;
+        if (errors.trim().length > 0) {
+          res_text.push(errors);
+        }
+        if (proof_tree.success) {
+          for (let proof of proof_tree.get_proofs) {
+            res_text.push(proof);
+          }
+        } else {
+          res_text.push("Failed to generate proof.");
+        }
+        res.innerText = res_text.join("\n");
+      }
+
+      input.addEventListener('input', update);
+      query.addEventListener('input', update);
+      update();
+    });
+  </script>
+</body>
+</html>
