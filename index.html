@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,24 +8,46 @@
   <title>Modus Playground</title>
   <style>
     body {
-      background-color: #222;
-      color: white;
+      color: #222;
+      background-color: white;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #222;
+        color: white;
+      }
+    }
+
+    body {
       margin: 10px auto;
+      padding: 0;
       max-width: 1000px;
       line-height: 2;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .modusfile-input, .modus-query {
+    .modusfile-input,
+    .modus-query {
       display: block;
+      box-sizing: border-box;
       width: 100%;
       padding: 10px;
       font-size: 18px;
       font-family: monospace;
-      background-color: #333;
-      outline-color: white;
       border: none;
-      color: white;
+        background-color: #e8e8e8;
+        outline-color: #222;
+        color: #222;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .modusfile-input,
+      .modus-query {
+        background-color: #333;
+        outline-color: white;
+        color: white;
+      }
     }
 
     .modusfile-input {
@@ -37,52 +60,100 @@
       font-size: 20px;
       line-height: 1.1;
     }
+
+    .result.loading {
+      opacity: 0.5;
+      cursor: progress;
+    }
+
+    .progress-bar {
+      display: block;
+      width: 100%;
+      height: 3px;
+      position: relative;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -30%;
+      width: 30%;
+      background-color: rgb(38, 105, 228);
+      animation: progress-fill-movement 2s linear infinite forwards;
+    }
+
+    @keyframes progress-fill-movement {
+      0% {
+        left: -30%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    @media (prefer-color-scheme: dark) {
+      .progress-bar .fill {
+        background-color: rgb(65, 132, 255);
+      }
+    }
   </style>
 </head>
+
 <body>
   <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
   Query:
   <input class="modus-query" type="text" value="alpine_with(&quot;python&quot;)">
+  <div class="progress-bar"><div class="fill"></div></div>
   <pre class="result"></pre>
   <script type="module">
-    import init, * as modus from './pkg/modus_playground.js';
-    init().then(() => {
-      window.modus = modus;
+    let worker = null;
+    let input = document.querySelector('.modusfile-input');
+    let query = document.querySelector('.modus-query');
+    let res = document.querySelector('.result');
+    let progress_bar = document.querySelector('.progress-bar');
+    let last_query_id = 0;
+    let last_query_completed = true;
 
-      let { get_proof_tree } = modus;
-      let input = document.querySelector('.modusfile-input');
-      let query = document.querySelector('.modus-query');
-      let res = document.querySelector('.result');
-
-      function update() {
-        let res_text = [];
-        let proof_tree;
-        try {
-          proof_tree = get_proof_tree(input.value, query.value);
-        } catch (e) {
-          proof_tree = null;
-          res_text.push(e.toString());
-        }
-        if (proof_tree) {
-          let errors = proof_tree.get_errors;
-          if (errors.trim().length > 0) {
-            res_text.push(errors);
-          }
-          if (proof_tree.success) {
-            for (let proof of proof_tree.get_proofs) {
-              res_text.push(proof);
-            }
-          } else {
-            res_text.push("Failed to generate proof.");
-          }
-        }
-        res.innerText = res_text.join("\n");
+    function init_worker() {
+      if (worker !== null) {
+        worker.terminate();
       }
+      worker = new Worker(new URL('src/worker.js', import.meta.url), { type: 'module' });
+      worker.onmessage = function ({ data }) {
+        if (data.query_id != last_query_id) {
+          return;
+        }
+        res.innerText = data.res_text;
+        res.classList.remove("loading");
+        progress_bar.style.display = "none";
+        last_query_completed = true;
+      }
+    }
 
-      input.addEventListener('input', update);
-      query.addEventListener('input', update);
-      update();
-    });
+    init_worker();
+
+    function update() {
+      if (!last_query_completed) {
+        init_worker();
+      }
+      last_query_id += 1;
+      res.classList.add("loading");
+      progress_bar.style.display = "";
+      worker.postMessage({
+        query: query.value,
+        modusfile: input.value,
+        query_id: last_query_id
+      });
+      last_query_completed = false;
+    }
+
+    input.addEventListener('input', update);
+    query.addEventListener('input', update);
+    update();
   </script>
 </body>
+
 </html>

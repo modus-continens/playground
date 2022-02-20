@@ -1,0 +1,22 @@
+{
+  "name": "playground",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "parcel serve index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/modus-continens/playground.git"
+  },
+  "bugs": {
+    "url": "https://github.com/modus-continens/playground/issues"
+  },
+  "homepage": "https://github.com/modus-continens/playground#readme",
+  "devDependencies": {
+    "parcel": "^2.3.2"
+  }
+}
