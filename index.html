@@ -128,7 +128,7 @@
         }
         res.innerText = data.res_text;
         res.classList.remove("loading");
-        progress_bar.style.display = "none";
+        progress_bar.style.visibility = "hidden";
         last_query_completed = true;
       }
     }
@@ -141,7 +141,7 @@
       }
       last_query_id += 1;
       res.classList.add("loading");
-      progress_bar.style.display = "";
+      progress_bar.style.visibility = "";
       worker.postMessage({
         query: query.value,
         modusfile: input.value,
