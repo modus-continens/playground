@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
-modus-corelib = { path = "../modus/corelib" }
+modus-lib = { path = "../modus/modus-lib" }
 wasm-bindgen = "0.2"
 termcolor = "1"
 codespan-reporting = "0.11"
@@ -17,6 +17,10 @@ ptree = "0.4"
 version = "*"
 features = ["js"]
 
+[profile.dev]
+panic = "unwind"
+
 [profile.release]
 opt-level = "s"
 lto = "fat"
+panic = "unwind"

@@ -55,18 +55,26 @@
       let res = document.querySelector('.result');
 
       function update() {
-        let proof_tree = get_proof_tree(input.value, query.value);
         let res_text = [];
-        let errors = proof_tree.get_errors;
-        if (errors.trim().length > 0) {
-          res_text.push(errors);
+        let proof_tree;
+        try {
+          proof_tree = get_proof_tree(input.value, query.value);
+        } catch (e) {
+          proof_tree = null;
+          res_text.push(e.toString());
         }
-        if (proof_tree.success) {
-          for (let proof of proof_tree.get_proofs) {
-            res_text.push(proof);
+        if (proof_tree) {
+          let errors = proof_tree.get_errors;
+          if (errors.trim().length > 0) {
+            res_text.push(errors);
           }
-        } else {
-          res_text.push("Failed to generate proof.");
+          if (proof_tree.success) {
+            for (let proof of proof_tree.get_proofs) {
+              res_text.push(proof);
+            }
+          } else {
+            res_text.push("Failed to generate proof.");
+          }
         }
         res.innerText = res_text.join("\n");
       }
