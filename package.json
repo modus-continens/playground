@@ -18,5 +18,8 @@
   "homepage": "https://github.com/modus-continens/playground#readme",
   "devDependencies": {
     "parcel": "^2.3.2"
+  },
+  "dependencies": {
+    "ansicolor": "^1.1.100"
   }
 }

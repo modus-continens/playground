@@ -36,12 +36,14 @@
       font-size: 18px;
       font-family: monospace;
       border: none;
-        background-color: #e8e8e8;
-        outline-color: #222;
-        color: #222;
+      background-color: #e8e8e8;
+      outline-color: #222;
+      color: #222;
+      font-variant-ligatures: none;
     }
 
     @media (prefers-color-scheme: dark) {
+
       .modusfile-input,
       .modus-query {
         background-color: #333;
@@ -59,6 +61,7 @@
       font-family: monospace;
       font-size: 20px;
       line-height: 1.1;
+      font-variant-ligatures: none;
     }
 
     .result.loading {
@@ -89,6 +92,7 @@
       0% {
         left: -30%;
       }
+
       100% {
         left: 100%;
       }
@@ -106,7 +110,9 @@
   <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
   Query:
   <input class="modus-query" type="text" value="alpine_with(&quot;python&quot;)">
-  <div class="progress-bar"><div class="fill"></div></div>
+  <div class="progress-bar">
+    <div class="fill"></div>
+  </div>
   <pre class="result"></pre>
   <script type="module">
     let worker = null;
@@ -126,7 +132,13 @@
         if (data.query_id != last_query_id) {
           return;
         }
-        res.innerText = data.res_text;
+        res.innerHTML = "";
+        for (let block of data.res.spans) {
+          let node = document.createElement("span");
+          node.textContent = block.text;
+          node.setAttribute("style", block.css);
+          res.appendChild(node);
+        }
         res.classList.remove("loading");
         progress_bar.style.visibility = "hidden";
         last_query_completed = true;

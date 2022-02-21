@@ -11,7 +11,7 @@ modus-lib = { path = "../modus/modus-lib" }
 wasm-bindgen = "0.2"
 termcolor = "1"
 codespan-reporting = "0.11"
-ptree = "0.4"
+ptree = { version = "0.4", features = ["ansi"] }
 
 [dependencies.getrandom]
 version = "*"
