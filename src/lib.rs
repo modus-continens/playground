@@ -5,6 +5,7 @@ use modus_lib::{
     sld::{self, tree_from_modusfile},
 };
 
+use ptree::{PrintConfig, print_config::StyleWhen};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -56,7 +57,7 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
 
         let f = codespan_reporting::files::SimpleFile::new("Modusfile", mf_source);
 
-        let mut analysis_err_buf = termcolor::Buffer::no_color();
+        let mut analysis_err_buf = termcolor::Buffer::ansi();
         if !check_and_output_analysis(&mf, false, &mut analysis_err_buf, &Default::default(), &f) {
             return ModusResult {
                 success: false,
@@ -77,7 +78,9 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
                 for (_, proof) in ps {
                     let t = proof.get_tree(&clauses);
                     let mut tstr: Vec<u8> = Vec::new();
-                    ptree::write_tree(&t, &mut tstr).unwrap();
+                    let mut pc = PrintConfig::default();
+                    pc.styled = StyleWhen::Always;
+                    ptree::write_tree_with(&t, &mut tstr, &pc).unwrap();
                     proofs.push(String::from_utf8_lossy(&tstr).into_owned());
                 }
             }

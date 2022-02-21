@@ -1,4 +1,5 @@
 import init, * as modus from '../pkg/modus_playground.js';
+import ansi from "ansicolor"
 
 let query = null;
 let init_done = false;
@@ -36,8 +37,9 @@ function process() {
       res_text.push("Failed to generate proof.");
     }
   }
+  res_text = res_text.join("\n");
   postMessage({
-    query_id, res_text: res_text.join("\n")
+    query_id, res: ansi.parse(res_text)
   });
   query = null;
 }
