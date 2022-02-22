@@ -14,6 +14,7 @@ jobs:
           path: dist/
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.5
+        if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: dist # The folder the action should deploy.
