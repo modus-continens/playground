@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-modus-lib = { path = "../modus/modus-lib" }
+modus-lib = "*"
 wasm-bindgen = "0.2"
 termcolor = "1"
 codespan-reporting = "0.11"
