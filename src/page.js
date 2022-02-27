@@ -48,3 +48,44 @@ function update() {
 input.addEventListener('input', update);
 query.addEventListener('input', update);
 update();
+
+let left_area = document.querySelector(".input-area");
+let divider = document.querySelector(".divider");
+
+let desktop_mode = window.innerWidth >= 1000;
+
+divider.addEventListener("mousedown", function (evt) {
+  if (!desktop_mode) {
+    return;
+  }
+  evt.preventDefault();
+  let down_w = parseFloat(window.getComputedStyle(left_area).width);
+  let offset = down_w - evt.clientX;
+  function up_handler(evt) {
+    evt.preventDefault();
+    window.removeEventListener("mouseup", up_handler);
+    window.removeEventListener("mousemove", move_handler);
+  }
+  function move_handler(evt) {
+    evt.preventDefault();
+    let new_w = evt.clientX + offset;
+    left_area.style.width = Math.max(100, Math.min(new_w, window.innerWidth - 100)) + "px";
+    left_area.style.flexBasis = "auto";
+    left_area.style.flexShrink = "0";
+    left_area.style.flexGrow = "0";
+  }
+  window.addEventListener("mouseup", up_handler);
+  window.addEventListener("mousemove", move_handler);
+});
+
+window.addEventListener("resize", function () {
+  if (desktop_mode && window.innerWidth < 1000) {
+    desktop_mode = false;
+    left_area.style.width = "";
+    left_area.style.flexBasis = "";
+    left_area.style.flexShrink = "";
+    left_area.style.flexGrow = "";
+  } else if (!desktop_mode && window.innerWidth >= 1000) {
+    desktop_mode = true;
+  }
+});

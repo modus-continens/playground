@@ -10,13 +10,18 @@
 </head>
 
 <body>
-  <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
-  Query:
-  <input class="modus-query" type="text" value="alpine_with(&quot;python&quot;)">
-  <div class="progress-bar">
-    <div class="fill"></div>
+  <div class="input-area">
+    Query:
+    <input class="modus-query" type="text" value="alpine_with(&quot;python&quot;)">
+    <div class="progress-bar">
+      <div class="fill"></div>
+    </div>
+    <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
   </div>
-  <pre class="result"></pre>
+  <div class="divider"></div>
+  <div class="result-area">
+    <pre class="result"></pre>
+  </div>
   <script type="module" src="src/page.js"></script>
 </body>
 
