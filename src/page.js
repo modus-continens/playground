@@ -89,3 +89,21 @@ window.addEventListener("resize", function () {
     desktop_mode = true;
   }
 });
+
+let share_btn = document.querySelector(".share-btn");
+let share_msg = document.querySelector(".share-msg");
+share_btn.addEventListener("click", function () {
+  let q = query.value;
+  let m = input.value;
+  window.location.hash = "#" + encodeURIComponent(JSON.stringify({ q, m }));
+  share_msg.innerHTML = "Link generated. Copy from address bar!";
+});
+
+let current_hash = window.location.hash;
+if (current_hash.startsWith("#")) {
+  let json = JSON.parse(decodeURIComponent(current_hash.substring(1)));
+  query.value = json.q;
+  input.value = json.m;
+  update();
+  window.location.hash = "";
+}
