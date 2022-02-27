@@ -58,7 +58,8 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
         let f = codespan_reporting::files::SimpleFile::new("Modusfile", mf_source);
 
         let mut analysis_err_buf = termcolor::Buffer::ansi();
-        if !check_and_output_analysis(&mf.kinds(), &mf, false, &mut analysis_err_buf, &Default::default(), &f) {
+        let kind_res = mf.kinds();
+        if !check_and_output_analysis(&kind_res, &mf, false, &mut analysis_err_buf, &Default::default(), &f) {
             return ModusResult {
                 success: false,
                 errors: std::str::from_utf8(analysis_err_buf.as_slice())
@@ -76,7 +77,7 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
         match proof_result {
             Ok(ps) => {
                 for (_, proof) in ps {
-                    let t = proof.get_tree(&clauses);
+                    let t = proof.get_tree(&clauses, &kind_res.pred_kind);
                     let mut tstr: Vec<u8> = Vec::new();
                     let mut pc = PrintConfig::default();
                     pc.styled = StyleWhen::Always;
