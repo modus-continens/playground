@@ -1,11 +1,15 @@
-use codespan_reporting::term;
+use codespan_reporting::{
+    diagnostic::Diagnostic,
+    term::{self, Config},
+};
 use modus_lib::{
     analysis::{check_and_output_analysis, ModusSemantics},
     modusfile::{Expression, Modusfile},
     sld::{self, tree_from_modusfile},
 };
 
-use ptree::{PrintConfig, print_config::StyleWhen};
+use ptree::{print_config::StyleWhen, PrintConfig};
+use termcolor::WriteColor;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -33,12 +37,30 @@ impl ModusResult {
 #[wasm_bindgen]
 pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
     let res = std::panic::catch_unwind(move || {
+        let mut parse_error_buf = termcolor::Buffer::ansi();
+        fn print_diagnostics<'files, F: codespan_reporting::files::Files<'files, FileId = ()>>(
+            diags: &Vec<Diagnostic<()>>,
+            writer: &mut dyn WriteColor,
+            config: &Config,
+            files: &'files F,
+        ) {
+            for diagnostic in diags {
+                term::emit(writer, config, files, diagnostic)
+                    .expect("Error when printing to term.");
+            }
+        }
+        let f = codespan_reporting::files::SimpleFile::new("Modusfile", mf_source);
+        let qf = codespan_reporting::files::SimpleFile::new("query", goal);
         let mf: Modusfile = match mf_source.parse() {
             Ok(mf) => mf,
             Err(e) => {
+                print_diagnostics(&e, &mut parse_error_buf, &Config::default(), &f);
                 return ModusResult {
                     success: false,
-                    errors: format!("Unable to parse input:\n{}", e),
+                    errors: format!(
+                        "Unable to parse input:\n{}",
+                        std::str::from_utf8(parse_error_buf.as_slice()).unwrap()
+                    ),
                     proofs: vec![],
                 };
             }
@@ -46,20 +68,29 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
         let query: Expression = match goal.parse() {
             Ok(q) => q,
             Err(e) => {
+                print_diagnostics(&e, &mut parse_error_buf, &Config::default(), &qf);
                 return ModusResult {
                     success: false,
-                    errors: format!("Unable to parse query:\n{}", e),
+                    errors: format!(
+                        "Unable to parse query:\n{}",
+                        std::str::from_utf8(parse_error_buf.as_slice()).unwrap()
+                    ),
                     proofs: vec![],
                 };
             }
         };
         let query = query.without_position();
 
-        let f = codespan_reporting::files::SimpleFile::new("Modusfile", mf_source);
-
         let mut analysis_err_buf = termcolor::Buffer::ansi();
         let kind_res = mf.kinds();
-        if !check_and_output_analysis(&kind_res, &mf, false, &mut analysis_err_buf, &Default::default(), &f) {
+        if !check_and_output_analysis(
+            &kind_res,
+            &mf,
+            false,
+            &mut analysis_err_buf,
+            &Default::default(),
+            &f,
+        ) {
             return ModusResult {
                 success: false,
                 errors: std::str::from_utf8(analysis_err_buf.as_slice())
@@ -87,7 +118,8 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
             }
             Err(e) => {
                 for diag_error in e {
-                    term::emit(&mut analysis_err_buf, &Default::default(), &f, &diag_error).unwrap();
+                    term::emit(&mut analysis_err_buf, &Default::default(), &f, &diag_error)
+                        .unwrap();
                 }
             }
         }
