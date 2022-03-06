@@ -108,7 +108,7 @@ pub fn get_proof_tree(mf_source: &str, goal: &str) -> ModusResult {
         match proof_result {
             Ok(ps) => {
                 for (_, proof) in ps {
-                    let t = proof.get_tree(&clauses, &kind_res.pred_kind);
+                    let t = proof.get_tree(&clauses, &kind_res.pred_kind, false);
                     let mut tstr: Vec<u8> = Vec::new();
                     let mut pc = PrintConfig::default();
                     pc.styled = StyleWhen::Always;
