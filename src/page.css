@@ -96,7 +96,7 @@ body {
 }
 
 .modusfile-input,
-.modus-query {
+.modus-goal {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -113,7 +113,7 @@ body {
 @media (prefers-color-scheme: dark) {
 
   .modusfile-input,
-  .modus-query {
+  .modus-goal {
     background-color: #333;
     outline-color: white;
     color: white;

@@ -1,6 +1,6 @@
 let worker = null;
 let input = document.querySelector('.modusfile-input');
-let query = document.querySelector('.modus-query');
+let query = document.querySelector('.modus-goal');
 let res = document.querySelector('.result');
 let progress_bar = document.querySelector('.progress-bar');
 let last_query_id = 0;
