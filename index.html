@@ -27,16 +27,16 @@
   copy(".", "/app/"),
   make(target).      
 
-dev_image("alpine") :- from("alpine").
+dev_image("alpine") :-
+  from("alpine"),
+  run("apk add gcc make").
 dev_image("bullseye") :- from("gcc:bullseye").
 
 app(base, "prod", "release") :-
   prod_image(base),
   app(base, "dev", "release")::copy("/app", "/app").
 
-prod_image("alpine") :-
-  from("alpine"),
-  run("apk add gcc make").
+prod_image("alpine") :- from("alpine").
 prod_image("bullseye") :- from("debian:bullseye-slim").
 
 make("debug") :- run("cd /app/ && make debug").
