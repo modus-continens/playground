@@ -56,7 +56,7 @@ body {
 .divider {
   background-color: #222;
   box-sizing: border-box;
-  width: 3px;
+  width: 2px;
   flex-basis: auto;
   flex-grow: 0;
   flex-shrink: 0;

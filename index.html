@@ -17,11 +17,30 @@
       <div class="share-msg" style="margin-right: 5px;"></div>
       <button class="share-btn">Share</button>
     </div>
-    <input class="modus-goal" type="text" value="alpine_with(&quot;python&quot;)">
+    <input class="modus-goal" type="text" value="app(&quot;alpine&quot;, X, &quot;release&quot;)">
     <div class="progress-bar">
       <div class="fill"></div>
     </div>
-    <textarea class="modusfile-input">alpine_with(X) :- from("alpine"), run(f"apk add ${X}").</textarea>
+    Modusfile:
+    <textarea class="modusfile-input">app(base, "dev", target) :-
+  dev_image(base),
+  copy(".", "/app/"),
+  make(target).      
+
+dev_image("alpine") :- from("alpine").
+dev_image("bullseye") :- from("gcc:bullseye").
+
+app(base, "prod", "release") :-
+  prod_image(base),
+  app(base, "dev", "release")::copy("/app", "/app").
+
+prod_image("alpine") :-
+  from("alpine"),
+  run("apk add gcc make").
+prod_image("bullseye") :- from("debian:bullseye-slim").
+
+make("debug") :- run("cd /app/ && make debug").
+make("release") :- run("cd /app/ && make").</textarea>
   </div>
   <div class="divider"></div>
   <div class="result-area">
